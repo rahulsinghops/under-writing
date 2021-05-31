@@ -37,29 +37,31 @@ public class UnderWritingService {
 	Logger log = LoggerFactory.getLogger(UnderWritingService.class);
 
 	// for swagger documentation
+
 	@ApiOperation(value = " To get bike suggestions", consumes = "application/json")
 	@RequestMapping(consumes = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST, path = "/uw")
 	@ResponseBody
 	public ResponseEntity<?> getUWDetails(@RequestBody @Valid UWInput request) {
 		log.info("getUWDetails service invoked,request:" + request);
-		UWLogging uwlog=logging.save(new UWLogging("getUWDetails", request.toString(), null, null, new Date()));
+		UWLogging uwlog = logging.save(new UWLogging("getUWDetails", request.toString(), null, null, new Date()));
 		try {
-			BikeOutput response= service.getBikeDetails(request);
+			BikeOutput response = service.getBikeDetails(request);
 			log.info("getUWDetails service executed,request:" + response);
-			//updating response in log
-			uwlog.setResponse((response!=null) ?response.toString():"response is null");
+			// updating response in log
+			uwlog.setResponse((response != null) ? response.toString() : "response is null");
 			logging.save(uwlog);
-			
+
 			return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
 
 		} catch (Exception e) {
 			log.info("getUWDetails service failed,error:" + e.getMessage());
 			uwlog.setError(e.getMessage());
 			logging.save(uwlog);
-			
-			return new ResponseEntity<>(new UWException(new Date(), "Try Again", HttpStatus.LOCKED.toString()), HttpStatus.LOCKED);
+
+			return new ResponseEntity<>(new UWException(new Date(), "Try Again", HttpStatus.LOCKED.toString()),
+					HttpStatus.LOCKED);
 		}
-		
+
 	}
 
 }

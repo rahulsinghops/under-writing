@@ -28,7 +28,7 @@ public class UWService {
 	BreDetailService breserv;
 
 	Logger log = LoggerFactory.getLogger(UWService.class);
-
+	
 	public BikeOutput getBikeDetails(UWInput input) {
 		log.info("getBikeDetails service called,input:" + input);
 		// Bre service call
