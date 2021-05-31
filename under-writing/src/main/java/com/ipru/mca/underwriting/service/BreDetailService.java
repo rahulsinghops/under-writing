@@ -32,53 +32,52 @@ public class BreDetailService {
 	Logger log = LoggerFactory.getLogger(BreDetailService.class);
 
 	// bre call service
-	@HystrixCommand(fallbackMethod = "BreDetailsFallback",
-			commandProperties = {
-			@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000"),
-			@HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "5"),
-			@HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "50"),
-			@HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "15000") 
-			                     })
+	@HystrixCommand(fallbackMethod = "BreDetailsFallback", threadPoolKey = "BreThreadPool", threadPoolProperties = {
+			@HystrixProperty(name = "coreSize", value = "20"),
+			@HystrixProperty(name = "maxQueueSize", value = "10") }, commandProperties = {
+					@HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "5000"),
+					@HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "5"),
+					@HystrixProperty(name = "circuitBreaker.errorThresholdPercentage", value = "50"),
+					@HystrixProperty(name = "circuitBreaker.sleepWindowInMilliseconds", value = "15000") })
 	public BreOutputDetails getBreDetails(BreInputDetails input) {
 		log.info("getBreDetails service called,input:" + input);
 		// db log
 		UWLogging logdata = logging.save(new UWLogging("getBreDetails", input.toString(), null, null, new Date()));
-		
-			// rest call
-			HttpHeaders header = new HttpHeaders();
-			header.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-			// header.set("Content-Type", "application/json");
-			HttpEntity<BreInputDetails> httpentity = new HttpEntity<BreInputDetails>(input, header);
-			// ResponseEntity<BreOutputDetails> entity=
-			// restTemplate.exchange("http://BRE-SERVICE/mca/bre",
-			// HttpMethod.POST,httpentity, BreOutputDetails.class, input);
-			ResponseEntity<BreOutputDetails> entity = restTemplate.exchange("http://bre-service/mca/bre",
-					HttpMethod.POST, httpentity, BreOutputDetails.class);
-			// ResponseEntity<?> entity=
-			// restTemplate.getForEntity("http://BRE-SERVICE/mca/bre",
-			// BreOutputDetails.class, input);
-			if (entity.getStatusCode().toString().equals("202 ACCEPTED")) {
-				BreOutputDetails output = (BreOutputDetails) entity.getBody();
-				log.info("getBreDetails service executed,output:" + output);
-				logdata.setResponse(output.toString());
-				logging.save(logdata);
-				return output;
-			} else {
-				log.info("getBreDetails service executed without success");
-				logdata.setError("return status code:" + entity.getStatusCode().toString());
-				logging.save(logdata);
-				return new BreOutputDetails();
-			}
-		 /*catch (Exception e) {
-			log.info("getBreDetails service failed ,error:" + e.getMessage());
-			logdata.setError("CatchBlockcalled :"+e.getMessage());
+
+		// rest call
+		HttpHeaders header = new HttpHeaders();
+		header.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		// header.set("Content-Type", "application/json");
+		HttpEntity<BreInputDetails> httpentity = new HttpEntity<BreInputDetails>(input, header);
+		// ResponseEntity<BreOutputDetails> entity=
+		// restTemplate.exchange("http://BRE-SERVICE/mca/bre",
+		// HttpMethod.POST,httpentity, BreOutputDetails.class, input);
+		ResponseEntity<BreOutputDetails> entity = restTemplate.exchange("http://bre-service/mca/bre", HttpMethod.POST,
+				httpentity, BreOutputDetails.class);
+		// ResponseEntity<?> entity=
+		// restTemplate.getForEntity("http://BRE-SERVICE/mca/bre",
+		// BreOutputDetails.class, input);
+		if (entity.getStatusCode().toString().equals("202 ACCEPTED")) {
+			BreOutputDetails output = (BreOutputDetails) entity.getBody();
+			log.info("getBreDetails service executed,output:" + output);
+			logdata.setResponse(output.toString());
+			logging.save(logdata);
+			return output;
+		} else {
+			log.info("getBreDetails service executed without success");
+			logdata.setError("return status code:" + entity.getStatusCode().toString());
 			logging.save(logdata);
 			return new BreOutputDetails();
-		}*/
+		}
+		/*
+		 * catch (Exception e) { log.info("getBreDetails service failed ,error:" +
+		 * e.getMessage()); logdata.setError("CatchBlockcalled :"+e.getMessage());
+		 * logging.save(logdata); return new BreOutputDetails(); }
+		 */
 
 	}
-	
-	//fallback method
+
+	// fallback method
 	public BreOutputDetails BreDetailsFallback(BreInputDetails input) {
 		log.info("BreDetailsFallback service called,input:" + input);
 		// db log
@@ -87,6 +86,6 @@ public class BreDetailService {
 		logdata.setResponse(output.toString());
 		logging.save(logdata);
 		return output;
-	
+
 	}
 }
