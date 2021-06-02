@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -25,6 +26,7 @@ import com.ipru.mca.underwriting.entity.UnderWriting;
 @EnableTransactionManagement
 @EnableJpaRepositories(entityManagerFactoryRef = "bikeEntityManagerFactory", transactionManagerRef = "bikeTransactionManager", basePackages = {
 "com.ipru.mca.underwriting.dao" })
+@RefreshScope
 public class UWDbConfiguration {
 	@Primary
 	@Bean(name = "bikeDataSource")

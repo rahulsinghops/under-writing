@@ -1,10 +1,12 @@
 package com.ipru.mca.underwriting;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;
@@ -18,8 +20,10 @@ import com.ipru.mca.underwriting.service.UWService;
 @EnableEurekaClient
 @EnableHystrix
 @EnableHystrixDashboard
+@RefreshScope
 public class UnderWritingApplication implements CommandLineRunner {
-
+@Value("${app.author: betu}")
+	private String author;
 	@Autowired
 	UWService service;
 
@@ -38,7 +42,7 @@ public class UnderWritingApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		//BreOutputDetails output = service.getBreDetails(new BreInputDetails(25, 76000, 176000, "Street", "Y", "SEA"));
-		//System.out.println(output);
+		System.out.println("underwriting author "+author);
 	}
 
 }
